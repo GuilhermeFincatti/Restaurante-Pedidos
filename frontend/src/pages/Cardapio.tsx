@@ -79,7 +79,7 @@ export function Cardapio() {
       await deleteItemCardapio(id);
       loadCardapio();
     } catch (err) {
-      alert('Erro ao excluir item');
+      alert('Erro ao excluir item, verifique se este item ainda está presente em algum pedido antes de excluir.');
       console.error(err);
     }
   };

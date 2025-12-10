@@ -66,7 +66,7 @@ export function Clientes() {
       await deleteCliente(id);
       loadClientes();
     } catch (err) {
-      alert('Erro ao excluir cliente');
+      alert('Erro ao excluir cliente, verifique se o cliente tem um pedido registrado antes de excluir.');
       console.error(err);
     }
   };
