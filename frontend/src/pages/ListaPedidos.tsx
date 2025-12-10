@@ -44,6 +44,7 @@ export function ListaPedidos() {
   const [searchTerm, setSearchTerm] = useState('');
   const [minDate, setMinDate] = useState(''); // New state for min date
   const [maxDate, setMaxDate] = useState(''); // New state for max date
+  const [selectedItemId, setSelectedItemId] = useState(''); // New state for item filtering
 
   // Estados para Edição
   const [editingPedido, setEditingPedido] = useState<Pedido | null>(null);
@@ -217,7 +218,12 @@ export function ListaPedidos() {
       matchesMaxDate = pedidoDataStr <= maxDate;
     }
 
-    return matchesSearchTerm && matchesMinDate && matchesMaxDate;
+    let matchesItem = true;
+    if (selectedItemId) {
+      matchesItem = pedido.itens.some(item => item.cardapio_id === selectedItemId);
+    }
+
+    return matchesSearchTerm && matchesMinDate && matchesMaxDate && matchesItem;
   });
 
   const resumoProducao = pedidos.reduce((acc, pedido) => {
@@ -573,7 +579,7 @@ ${statusPagamento}`;
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="minDate" className="block text-xs font-medium text-slate-500 mb-1">Data Mínima de Retirada</label>
                   <input
@@ -593,6 +599,20 @@ ${statusPagamento}`;
                     value={maxDate}
                     onChange={(e) => setMaxDate(e.target.value)}
                   />
+                </div>
+                <div>
+                    <label htmlFor="filterItem" className="block text-xs font-medium text-slate-500 mb-1">Filtrar por Item</label>
+                    <select
+                        id="filterItem"
+                        className="w-full rounded-lg border-slate-200 bg-slate-50 p-2.5 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
+                        value={selectedItemId}
+                        onChange={(e) => setSelectedItemId(e.target.value)}
+                    >
+                        <option value="">Todos os Itens</option>
+                        {cardapio.map(item => (
+                            <option key={item.id} value={item.id}>{item.nome}</option>
+                        ))}
+                    </select>
                 </div>
               </div>
             </div>
