@@ -64,12 +64,12 @@ export function ListaPedidos() {
     setLoading(true);
     setError(null);
     try {
-      const [pedidosData, cardapioData] = await Promise.all([
+      const [pedidosData, cardapioResponse] = await Promise.all([
         fetchPedidos(),
-        fetchCardapio()
+        fetchCardapio(1, 1000)
       ]);
       setPedidos(pedidosData);
-      setCardapio(cardapioData);
+      setCardapio(cardapioResponse.data);
     } catch (err) {
       setError('Falha ao carregar dados.');
       console.error(err);

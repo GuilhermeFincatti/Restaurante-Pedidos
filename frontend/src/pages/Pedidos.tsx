@@ -42,10 +42,10 @@ export function Pedidos() {
       setLoading(true);
       setError(null);
       try {
-        const fetchedClientes = await fetchClientes();
-        setClientes(fetchedClientes);
-        const fetchedCardapio = await fetchCardapio();
-        setCardapio(fetchedCardapio);
+        const fetchedClientes = await fetchClientes(1, 1000);
+        setClientes(fetchedClientes.data);
+        const fetchedCardapio = await fetchCardapio(1, 1000);
+        setCardapio(fetchedCardapio.data);
       } catch (err) {
         setError('Falha ao carregar dados iniciais.');
         console.error(err);

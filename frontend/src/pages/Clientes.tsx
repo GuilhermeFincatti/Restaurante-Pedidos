@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus, Trash2, Search, Pencil, X } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Search, Pencil, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { fetchClientes, createCliente, updateCliente, deleteCliente } from '../services/api';
@@ -17,17 +17,22 @@ export function Clientes() {
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     loadClientes();
-  }, []);
+  }, [currentPage]);
 
   const loadClientes = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchClientes();
-      setClientes(data);
+      const response = await fetchClientes(currentPage);
+      setClientes(response.data);
+      setTotalPages(response.totalPages);
+      setTotalItems(response.total);
     } catch (err) {
       setError('Falha ao carregar clientes.');
       console.error(err);
@@ -227,8 +232,29 @@ export function Clientes() {
                 </table>
 
               </div>
-              <div className="p-4 border-t border-slate-100 text-center text-xs text-slate-400">
-                Mostrando {clientes.length} clientes.
+              <div className="p-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="text-xs text-slate-400">
+                  Mostrando {clientes.length} de {totalItems} clientes.
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-sm text-slate-600">
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -12,8 +12,22 @@ app.use(express.json());
 // Clientes
 app.get('/clientes', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM clientes ORDER BY nome');
-    res.json(result.rows);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const countResult = await db.query('SELECT COUNT(*) FROM clientes');
+    const total = parseInt(countResult.rows[0].count);
+
+    const result = await db.query('SELECT * FROM clientes ORDER BY nome LIMIT $1 OFFSET $2', [limit, offset]);
+    
+    res.json({
+      data: result.rows,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -65,8 +79,38 @@ app.delete('/clientes/:id', async (req, res) => {
 // Cardapio
 app.get('/cardapio', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM cardapio ORDER BY nome');
-    res.json(result.rows);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const categoria = req.query.categoria;
+    const offset = (page - 1) * limit;
+
+    let countQuery = 'SELECT COUNT(*) FROM cardapio';
+    let dataQuery = 'SELECT * FROM cardapio';
+    const params = [];
+    const countParams = [];
+
+    if (categoria) {
+      countQuery += ' WHERE categoria = $1';
+      dataQuery += ' WHERE categoria = $1';
+      params.push(categoria);
+      countParams.push(categoria);
+    }
+
+    dataQuery += ` ORDER BY nome LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    params.push(limit, offset);
+
+    const countResult = await db.query(countQuery, countParams);
+    const total = parseInt(countResult.rows[0].count);
+
+    const result = await db.query(dataQuery, params);
+
+    res.json({
+      data: result.rows,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });

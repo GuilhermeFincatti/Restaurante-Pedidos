@@ -1,7 +1,7 @@
 const API_URL = 'http://localhost:3000';
 
-export async function fetchClientes() {
-  const response = await fetch(`${API_URL}/clientes`);
+export async function fetchClientes(page = 1, limit = 10) {
+  const response = await fetch(`${API_URL}/clientes?page=${page}&limit=${limit}`);
   if (!response.ok) throw new Error('Erro ao buscar clientes');
   return response.json();
 }
@@ -34,14 +34,21 @@ export async function deleteCliente(id: string) {
   return response.json();
 }
 
-export async function fetchCardapio() {
-  const response = await fetch(`${API_URL}/cardapio`);
+export async function fetchCardapio(page = 1, limit = 10, categoria?: string) {
+  let url = `${API_URL}/cardapio?page=${page}&limit=${limit}`;
+  if (categoria) {
+    url += `&categoria=${categoria}`;
+  }
+  const response = await fetch(url);
   if (!response.ok) throw new Error('Erro ao buscar cardápio');
-  const data = await response.json();
-  return data.map((item: any) => ({
-    ...item,
-    preco: parseFloat(item.preco)
-  }));
+  const result = await response.json();
+  return {
+    ...result,
+    data: result.data.map((item: any) => ({
+      ...item,
+      preco: parseFloat(item.preco)
+    }))
+  };
 }
 
 export async function createItemCardapio(item: { nome: string; preco: number; unidade: string; categoria: string }) {

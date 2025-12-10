@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus, Trash2, Utensils, Cake, Pencil, X } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Utensils, Cake, Pencil, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { fetchCardapio, createItemCardapio, updateItemCardapio, deleteItemCardapio } from '../services/api';
@@ -13,7 +13,9 @@ interface ItemCardapio {
 
 export function Cardapio() {
 
-  const [itensCardapio, setItensCardapio] = useState<ItemCardapio[]>([]);
+  const [salgados, setSalgados] = useState<ItemCardapio[]>([]);
+  const [doces, setDoces] = useState<ItemCardapio[]>([]);
+  
   const [itemNome, setItemNome] = useState('');
   const [unidade, setUnidade] = useState<'un' | 'kg'>('un');
   const [preco, setPreco] = useState<number>(0);
@@ -22,17 +24,37 @@ export function Cardapio() {
   const [editingItem, setEditingItem] = useState<ItemCardapio | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Pagination states
+  const [pageSalgados, setPageSalgados] = useState(1);
+  const [totalSalgados, setTotalSalgados] = useState(0);
+  const [totalPagesSalgados, setTotalPagesSalgados] = useState(1);
+
+  const [pageDoces, setPageDoces] = useState(1);
+  const [totalDoces, setTotalDoces] = useState(0);
+  const [totalPagesDoces, setTotalPagesDoces] = useState(1);
 
   useEffect(() => {
     loadCardapio();
-  }, []);
+  }, [pageSalgados, pageDoces]);
 
   const loadCardapio = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchCardapio();
-      setItensCardapio(data);
+      const [resSalgados, resDoces] = await Promise.all([
+        fetchCardapio(pageSalgados, 10, 'salgados'),
+        fetchCardapio(pageDoces, 10, 'doces')
+      ]);
+
+      setSalgados(resSalgados.data);
+      setTotalSalgados(resSalgados.total);
+      setTotalPagesSalgados(resSalgados.totalPages);
+
+      setDoces(resDoces.data);
+      setTotalDoces(resDoces.total);
+      setTotalPagesDoces(resDoces.totalPages);
+
     } catch (err) {
       setError('Falha ao carregar cardápio.');
       console.error(err);
@@ -206,14 +228,15 @@ export function Cardapio() {
               <>
                 {/* Categoria Salgados */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center">
-                        <Utensils className="w-4 h-4 mr-2 text-blue-600" />
-                        <h3 className="font-bold text-slate-800">Salgados</h3>
+                    <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                        <div className="flex items-center">
+                            <Utensils className="w-4 h-4 mr-2 text-blue-600" />
+                            <h3 className="font-bold text-slate-800">Salgados</h3>
+                        </div>
+                        <span className="text-xs text-slate-500">Total: {totalSalgados}</span>
                     </div>
                     <div className="divide-y divide-slate-100">
-                      {itensCardapio
-                        .filter(item => item.categoria === 'salgados')
-                        .map(item => (
+                      {salgados.map(item => (
                           <div key={item.id} className="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center group">
                               <div>
                                   <p className="font-medium text-slate-900">{item.nome}</p>
@@ -238,22 +261,47 @@ export function Cardapio() {
                               </div>
                           </div>
                       ))}
-                      {itensCardapio.filter(item => item.categoria === 'salgados').length === 0 && (
+                      {salgados.length === 0 && (
                          <div className="p-4 text-center text-slate-500">Nenhum item na categoria Salgados.</div>
                       )}
                     </div>
+                    {/* Pagination for Salgados */}
+                    {totalSalgados > 0 && (
+                        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                            <div className="text-xs text-slate-400">
+                                Página {pageSalgados} de {totalPagesSalgados}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={() => setPageSalgados(p => Math.max(1, p - 1))}
+                                    disabled={pageSalgados === 1}
+                                    className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setPageSalgados(p => Math.min(totalPagesSalgados, p + 1))}
+                                    disabled={pageSalgados === totalPagesSalgados}
+                                    className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Categoria Doces */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center">
-                        <Cake className="w-4 h-4 mr-2 text-pink-500" />
-                        <h3 className="font-bold text-slate-800">Doces</h3>
+                    <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                        <div className="flex items-center">
+                            <Cake className="w-4 h-4 mr-2 text-pink-500" />
+                            <h3 className="font-bold text-slate-800">Doces</h3>
+                        </div>
+                        <span className="text-xs text-slate-500">Total: {totalDoces}</span>
                     </div>
                     <div className="divide-y divide-slate-100">
-                      {itensCardapio
-                        .filter(item => item.categoria === 'doces')
-                        .map(item => (
+                      {doces.map(item => (
                           <div key={item.id} className="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center group">
                               <div>
                                   <p className="font-medium text-slate-900">{item.nome}</p>
@@ -278,10 +326,34 @@ export function Cardapio() {
                               </div>
                           </div>
                       ))}
-                      {itensCardapio.filter(item => item.categoria === 'doces').length === 0 && (
+                      {doces.length === 0 && (
                          <div className="p-4 text-center text-slate-500">Nenhum item na categoria Doces.</div>
                       )}
                     </div>
+                    {/* Pagination for Doces */}
+                    {totalDoces > 0 && (
+                        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                            <div className="text-xs text-slate-400">
+                                Página {pageDoces} de {totalPagesDoces}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={() => setPageDoces(p => Math.max(1, p - 1))}
+                                    disabled={pageDoces === 1}
+                                    className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setPageDoces(p => Math.min(totalPagesDoces, p + 1))}
+                                    disabled={pageDoces === totalPagesDoces}
+                                    className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
               </>
             )}

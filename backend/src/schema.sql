@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
     valor_total DECIMAL(10, 2) NOT NULL,
     data_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     data_retirada DATE,
-    hora_retirada TIME,
+    hora_retirada TIME
 );
 
 CREATE TABLE IF NOT EXISTS itens_pedido (
