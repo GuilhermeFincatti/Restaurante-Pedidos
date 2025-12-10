@@ -42,6 +42,8 @@ export function ListaPedidos() {
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'lista' | 'resumo'>('lista');
   const [searchTerm, setSearchTerm] = useState('');
+  const [minDate, setMinDate] = useState(''); // New state for min date
+  const [maxDate, setMaxDate] = useState(''); // New state for max date
 
   // Estados para Edição
   const [editingPedido, setEditingPedido] = useState<Pedido | null>(null);
@@ -197,9 +199,26 @@ export function ListaPedidos() {
     }
   };
 
-  const filteredPedidos = pedidos.filter(pedido => 
-    pedido.cliente_nome.toLowerCase().startsWith(searchTerm.toLowerCase())
-  );
+  const filteredPedidos = pedidos.filter(pedido => {
+    const matchesSearchTerm = pedido.cliente_nome.toLowerCase().startsWith(searchTerm.toLowerCase());
+
+    // Normaliza a data do pedido para YYYY-MM-DD
+    // O backend envia data_retirada como string ISO (devido ao JSON.stringify de um Date object) ou string DATE.
+    // Vamos garantir que pegamos apenas os primeiros 10 caracteres (YYYY-MM-DD)
+    const pedidoDataStr = String(pedido.data_retirada).substring(0, 10);
+    
+    let matchesMinDate = true;
+    if (minDate) {
+      matchesMinDate = pedidoDataStr >= minDate;
+    }
+
+    let matchesMaxDate = true;
+    if (maxDate) {
+      matchesMaxDate = pedidoDataStr <= maxDate;
+    }
+
+    return matchesSearchTerm && matchesMinDate && matchesMaxDate;
+  });
 
   const resumoProducao = pedidos.reduce((acc, pedido) => {
     pedido.itens.forEach(item => {
@@ -543,15 +562,39 @@ ${statusPagamento}`;
 
         {viewMode === 'lista' && (
           <div className="space-y-6">
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center">
-               <Search className="w-5 h-5 text-slate-400 mr-3" />
-               <input 
-                  type="text" 
-                  placeholder="Filtrar por nome do cliente..." 
-                  className="flex-1 outline-none text-slate-700 placeholder-slate-400"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-               />
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 space-y-4">
+              <div className="flex items-center">
+                <Search className="w-5 h-5 text-slate-400 mr-3" />
+                <input 
+                    type="text" 
+                    placeholder="Filtrar por nome do cliente..." 
+                    className="flex-1 outline-none text-slate-700 placeholder-slate-400"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="minDate" className="block text-xs font-medium text-slate-500 mb-1">Data Mínima de Retirada</label>
+                  <input
+                    type="date"
+                    id="minDate"
+                    className="w-full rounded-lg border-slate-200 bg-slate-50 p-2.5 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
+                    value={minDate}
+                    onChange={(e) => setMinDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="maxDate" className="block text-xs font-medium text-slate-500 mb-1">Data Máxima de Retirada</label>
+                  <input
+                    type="date"
+                    id="maxDate"
+                    className="w-full rounded-lg border-slate-200 bg-slate-50 p-2.5 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
+                    value={maxDate}
+                    onChange={(e) => setMaxDate(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
 
             {loading && <p className="text-center text-slate-500 py-8">Carregando pedidos...</p>}
