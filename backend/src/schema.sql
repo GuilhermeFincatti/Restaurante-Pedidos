@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS cardapio (
     nome VARCHAR(255) NOT NULL,
     preco DECIMAL(10, 2) NOT NULL,
     unidade VARCHAR(10) CHECK (unidade IN ('un', 'kg')) NOT NULL,
-    categoria VARCHAR(50) CHECK (categoria IN ('cozinha', 'confeitaria')) NOT NULL
+    categoria VARCHAR(50) CHECK (categoria IN ('salgados', 'doces')) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS pedidos (

@@ -8,7 +8,7 @@ interface ItemCardapio {
   nome: string;
   preco: number;
   unidade: 'un' | 'kg';
-  categoria: 'cozinha' | 'confeitaria';
+  categoria: 'salgados' | 'doces';
 }
 
 export function Cardapio() {
@@ -18,7 +18,7 @@ export function Cardapio() {
   const [unidade, setUnidade] = useState<'un' | 'kg'>('un');
   const [preco, setPreco] = useState<number>(0);
   const [displayPreco, setDisplayPreco] = useState('R$ 0,00');
-  const [categoria, setCategoria] = useState<'cozinha' | 'confeitaria'>('cozinha');
+  const [categoria, setCategoria] = useState<'salgados' | 'doces'>('salgados');
   const [editingItem, setEditingItem] = useState<ItemCardapio | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +70,7 @@ export function Cardapio() {
     setUnidade('un');
     setPreco(0);
     setDisplayPreco('R$ 0,00');
-    setCategoria('cozinha');
+    setCategoria('salgados');
   };
 
   const handleDelete = async (id: string) => {
@@ -110,7 +110,7 @@ export function Cardapio() {
               Voltar para Home
             </Link>
             <h1 className="text-3xl font-bold text-slate-800">Cardápio</h1>
-            <p className="text-slate-500 mt-1">Gerencie os itens da cozinha e confeitaria.</p>
+            <p className="text-slate-500 mt-1">Gerencie os itens de salgados e doces.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -177,10 +177,10 @@ export function Cardapio() {
                         id="categoria"
                         className="w-full rounded-lg border-slate-200 bg-slate-50 p-2.5 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                         value={categoria}
-                        onChange={(e) => setCategoria(e.target.value as 'cozinha' | 'confeitaria')}
+                        onChange={(e) => setCategoria(e.target.value as 'salgados' | 'doces')}
                     >
-                        <option value="cozinha">Cozinha</option>
-                        <option value="confeitaria">Confeitaria</option>
+                        <option value="salgados">Salgados</option>
+                        <option value="doces">Doces</option>
                     </select>
                 </div>
                 <button
@@ -204,15 +204,15 @@ export function Cardapio() {
 
             {!loading && (
               <>
-                {/* Categoria Cozinha */}
+                {/* Categoria Salgados */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center">
                         <Utensils className="w-4 h-4 mr-2 text-blue-600" />
-                        <h3 className="font-bold text-slate-800">Cozinha</h3>
+                        <h3 className="font-bold text-slate-800">Salgados</h3>
                     </div>
                     <div className="divide-y divide-slate-100">
                       {itensCardapio
-                        .filter(item => item.categoria === 'cozinha')
+                        .filter(item => item.categoria === 'salgados')
                         .map(item => (
                           <div key={item.id} className="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center group">
                               <div>
@@ -238,21 +238,21 @@ export function Cardapio() {
                               </div>
                           </div>
                       ))}
-                      {itensCardapio.filter(item => item.categoria === 'cozinha').length === 0 && (
-                         <div className="p-4 text-center text-slate-500">Nenhum item na categoria Cozinha.</div>
+                      {itensCardapio.filter(item => item.categoria === 'salgados').length === 0 && (
+                         <div className="p-4 text-center text-slate-500">Nenhum item na categoria Salgados.</div>
                       )}
                     </div>
                 </div>
 
-                {/* Categoria Confeitaria */}
+                {/* Categoria Doces */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center">
                         <Cake className="w-4 h-4 mr-2 text-pink-500" />
-                        <h3 className="font-bold text-slate-800">Confeitaria</h3>
+                        <h3 className="font-bold text-slate-800">Doces</h3>
                     </div>
                     <div className="divide-y divide-slate-100">
                       {itensCardapio
-                        .filter(item => item.categoria === 'confeitaria')
+                        .filter(item => item.categoria === 'doces')
                         .map(item => (
                           <div key={item.id} className="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center group">
                               <div>
@@ -278,8 +278,8 @@ export function Cardapio() {
                               </div>
                           </div>
                       ))}
-                      {itensCardapio.filter(item => item.categoria === 'confeitaria').length === 0 && (
-                         <div className="p-4 text-center text-slate-500">Nenhum item na categoria Confeitaria.</div>
+                      {itensCardapio.filter(item => item.categoria === 'doces').length === 0 && (
+                         <div className="p-4 text-center text-slate-500">Nenhum item na categoria Doces.</div>
                       )}
                     </div>
                 </div>

@@ -10,7 +10,7 @@ interface ItemCardapio {
   nome: string;
   preco: number;
   unidade: 'un' | 'kg';
-  categoria: 'cozinha' | 'confeitaria';
+  categoria: 'salgados' | 'doces';
 }
 
 interface PedidoItem {
@@ -210,7 +210,7 @@ export function ListaPedidos() {
           nome: item.item_nome,
           quantidade: 0,
           unidade: item.unidade || 'un',
-          categoria: item.categoria || 'cozinha'
+          categoria: item.categoria || 'salgados'
         };
       }
       acc[key].quantidade += item.quantidade;
@@ -219,8 +219,8 @@ export function ListaPedidos() {
   }, {} as Record<string, { nome: string; quantidade: number; unidade: string; categoria: string }>);
 
   const listaResumo = Object.values(resumoProducao).sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
-  const cozinhaItems = listaResumo.filter(item => item.categoria === 'cozinha');
-  const confeitariaItems = listaResumo.filter(item => item.categoria === 'confeitaria');
+  const salgadosItems = listaResumo.filter(item => item.categoria === 'salgados');
+  const docesItems = listaResumo.filter(item => item.categoria === 'doces');
 
   const formatDate = (dateString: string) => {
     try {
@@ -240,14 +240,14 @@ export function ListaPedidos() {
       
       let finalY = 20;
 
-      if (cozinhaItems.length > 0) {
+      if (salgadosItems.length > 0) {
           doc.setFontSize(12);
-          doc.text('Cozinha', 14, finalY + 5);
+          doc.text('Salgados', 14, finalY + 5);
           finalY += 8;
 
           autoTable(doc, {
             head: [['Item', 'Quantidade Total']],
-            body: cozinhaItems.map(i => [i.nome, `${i.quantidade} ${i.unidade}`]),
+            body: salgadosItems.map(i => [i.nome, `${i.quantidade} ${i.unidade}`]),
             startY: finalY,
             theme: 'striped'
           });
@@ -255,14 +255,14 @@ export function ListaPedidos() {
           finalY = (doc as any).lastAutoTable.finalY + 10;
       }
 
-      if (confeitariaItems.length > 0) {
+      if (docesItems.length > 0) {
           doc.setFontSize(12);
-          doc.text('Confeitaria', 14, finalY + 5);
+          doc.text('Doces', 14, finalY + 5);
           finalY += 8;
 
           autoTable(doc, {
             head: [['Item', 'Quantidade Total']],
-            body: confeitariaItems.map(i => [i.nome, `${i.quantidade} ${i.unidade}`]),
+            body: docesItems.map(i => [i.nome, `${i.quantidade} ${i.unidade}`]),
             startY: finalY,
             theme: 'striped'
           });
@@ -619,12 +619,12 @@ ${statusPagamento}`;
         {viewMode === 'resumo' && (
            <div className="space-y-6 max-w-4xl mx-auto">
               
-              {/* Cozinha */}
+              {/* Salgados */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
                   <h2 className="text-lg font-bold text-slate-800 flex items-center">
                     <Package className="w-5 h-5 mr-2 text-blue-600" />
-                    Produção: Cozinha
+                    Produção: Salgados
                   </h2>
                 </div>
                 <div className="overflow-x-auto">
@@ -636,10 +636,10 @@ ${statusPagamento}`;
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {cozinhaItems.length === 0 && (
-                         <tr><td colSpan={2} className="px-6 py-8 text-center text-slate-500">Nenhum item de cozinha.</td></tr>
+                      {salgadosItems.length === 0 && (
+                         <tr><td colSpan={2} className="px-6 py-8 text-center text-slate-500">Nenhum item de salgados.</td></tr>
                       )}
-                      {cozinhaItems.map((item, idx) => (
+                      {salgadosItems.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 font-medium text-slate-900">{item.nome}</td>
                           <td className="px-6 py-4 text-right font-bold text-blue-600 text-lg">
@@ -652,12 +652,12 @@ ${statusPagamento}`;
                 </div>
               </div>
 
-              {/* Confeitaria */}
+              {/* Doces */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
                   <h2 className="text-lg font-bold text-slate-800 flex items-center">
                     <Package className="w-5 h-5 mr-2 text-pink-500" />
-                    Produção: Confeitaria
+                    Produção: Doces
                   </h2>
                 </div>
                 <div className="overflow-x-auto">
@@ -669,10 +669,10 @@ ${statusPagamento}`;
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {confeitariaItems.length === 0 && (
-                         <tr><td colSpan={2} className="px-6 py-8 text-center text-slate-500">Nenhum item de confeitaria.</td></tr>
+                      {docesItems.length === 0 && (
+                         <tr><td colSpan={2} className="px-6 py-8 text-center text-slate-500">Nenhum item de doces.</td></tr>
                       )}
-                      {confeitariaItems.map((item, idx) => (
+                      {docesItems.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 font-medium text-slate-900">{item.nome}</td>
                           <td className="px-6 py-4 text-right font-bold text-blue-600 text-lg">

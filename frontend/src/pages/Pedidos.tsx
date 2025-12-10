@@ -14,7 +14,7 @@ interface ItemCardapio {
   nome: string;
   unidade: 'un' | 'kg';
   preco: number;
-  categoria: 'cozinha' | 'confeitaria'; // Added categoria
+  categoria: 'salgados' | 'doces'; // Added categoria
 }
 
 interface PedidoItem {
