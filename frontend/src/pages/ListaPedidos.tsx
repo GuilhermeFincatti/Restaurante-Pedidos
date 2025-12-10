@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Search, List, ClipboardList, Package, FileDown, Pencil, Trash2, X, Plus } from 'lucide-react';
+import { ArrowLeft, Search, List, ClipboardList, Package, FileDown, Pencil, Trash2, X, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchPedidos, updatePedido, deletePedido, fetchCardapio } from '../services/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -45,6 +45,8 @@ export function ListaPedidos() {
   const [minDate, setMinDate] = useState(''); // New state for min date
   const [maxDate, setMaxDate] = useState(''); // New state for max date
   const [selectedItemId, setSelectedItemId] = useState(''); // New state for item filtering
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
 
   // Estados para Edição
   const [editingPedido, setEditingPedido] = useState<Pedido | null>(null);
@@ -60,6 +62,10 @@ export function ListaPedidos() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, minDate, maxDate, selectedItemId]);
 
   const loadData = async () => {
     setLoading(true);
@@ -203,9 +209,6 @@ export function ListaPedidos() {
   const filteredPedidos = pedidos.filter(pedido => {
     const matchesSearchTerm = pedido.cliente_nome.toLowerCase().startsWith(searchTerm.toLowerCase());
 
-    // Normaliza a data do pedido para YYYY-MM-DD
-    // O backend envia data_retirada como string ISO (devido ao JSON.stringify de um Date object) ou string DATE.
-    // Vamos garantir que pegamos apenas os primeiros 10 caracteres (YYYY-MM-DD)
     const pedidoDataStr = String(pedido.data_retirada).substring(0, 10);
     
     let matchesMinDate = true;
@@ -225,6 +228,11 @@ export function ListaPedidos() {
 
     return matchesSearchTerm && matchesMinDate && matchesMaxDate && matchesItem;
   });
+
+  const totalPages = Math.ceil(filteredPedidos.length / itemsPerPage);
+  const indexOfLastPedido = currentPage * itemsPerPage;
+  const indexOfFirstPedido = indexOfLastPedido - itemsPerPage;
+  const paginatedPedidos = filteredPedidos.slice(indexOfFirstPedido, indexOfLastPedido);
 
   const resumoProducao = pedidos.reduce((acc, pedido) => {
     pedido.itens.forEach(item => {
@@ -625,7 +633,7 @@ ${statusPagamento}`;
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPedidos.map((pedido) => (
+              {paginatedPedidos.map((pedido) => (
                 <div key={pedido.id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
                   <div className="p-5 border-b border-slate-100 bg-slate-50/50">
                     <div className="flex justify-between items-start mb-2">
@@ -676,6 +684,28 @@ ${statusPagamento}`;
                 </div>
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center space-x-2 mt-6">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-sm text-slate-600">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
         )}
 
