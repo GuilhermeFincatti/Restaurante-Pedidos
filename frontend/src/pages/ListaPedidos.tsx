@@ -625,6 +625,24 @@ ${statusPagamento}`;
 
         {viewMode === 'lista' && (
           <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+               <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total de Pedidos</p>
+                  <p className="text-2xl font-bold text-slate-800">{filteredPedidos.length}</p>
+               </div>
+               <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Valor Total</p>
+                  <p className="text-2xl font-bold text-blue-600">R$ {filteredPedidos.reduce((acc, p) => acc + p.valor_total, 0).toFixed(2)}</p>
+               </div>
+               <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Adiantado</p>
+                  <p className="text-2xl font-bold text-green-600">R$ {filteredPedidos.reduce((acc, p) => acc + p.valor_adiantado, 0).toFixed(2)}</p>
+               </div>
+               <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">A Receber</p>
+                  <p className="text-2xl font-bold text-red-500">R$ {(filteredPedidos.reduce((acc, p) => acc + p.valor_total, 0) - filteredPedidos.reduce((acc, p) => acc + p.valor_adiantado, 0)).toFixed(2)}</p>
+               </div>
+            </div>
 
             {loading && <p className="text-center text-slate-500 py-8">Carregando pedidos...</p>}
             {error && <p className="text-center text-red-500 py-8">{error}</p>}
