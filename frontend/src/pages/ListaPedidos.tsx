@@ -246,7 +246,7 @@ export function ListaPedidos() {
           categoria: item.categoria || 'salgados'
         };
       }
-      acc[key].quantidade += item.quantidade;
+      acc[key].quantidade = parseFloat((acc[key].quantidade + item.quantidade).toFixed(3));
     });
     return acc;
   }, {} as Record<string, { nome: string; quantidade: number; unidade: string; categoria: string }>);
