@@ -234,7 +234,7 @@ export function ListaPedidos() {
   const indexOfFirstPedido = indexOfLastPedido - itemsPerPage;
   const paginatedPedidos = filteredPedidos.slice(indexOfFirstPedido, indexOfLastPedido);
 
-  const resumoProducao = pedidos.reduce((acc, pedido) => {
+  const resumoProducao = filteredPedidos.reduce((acc, pedido) => {
     pedido.itens.forEach(item => {
       const key = `${item.item_nome}-${item.unidade}`; 
       
@@ -574,9 +574,7 @@ ${statusPagamento}`;
             </div>
         </div>
 
-        {viewMode === 'lista' && (
-          <div className="space-y-6">
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 space-y-4">
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 space-y-4 mb-6">
               <div className="flex items-center">
                 <Search className="w-5 h-5 text-slate-400 mr-3" />
                 <input 
@@ -624,6 +622,9 @@ ${statusPagamento}`;
                 </div>
               </div>
             </div>
+
+        {viewMode === 'lista' && (
+          <div className="space-y-6">
 
             {loading && <p className="text-center text-slate-500 py-8">Carregando pedidos...</p>}
             {error && <p className="text-center text-red-500 py-8">{error}</p>}
